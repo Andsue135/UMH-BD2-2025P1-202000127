@@ -1,1 +1,20 @@
+SELECT 
+/*No sabia si eran los dos o Pias o Country ya que lo tengo en español 
+y el otro currencies esta en ingles.*/
+    f.Pais AS Country, 
+    f.Producto, 
+    f.PrecioVenta, 
+    f.PrecioManufactura, 
+    c.exchange_rate, 
+    f.Año, 
+    f.NombreMes
+FROM financialsample f
+JOIN currencies c ON f.Pais = c.country
+WHERE f.Pais = 'MEXICO' 
+AND f.Año = 2014 
+AND f.NumeroMes IN (1, 2) 
+ORDER BY f.Año, f.NumeroMes, f.Producto;
 
+    
+SELECT * FROM FinancialSample;
+SELECT * FROM Currencies; 
