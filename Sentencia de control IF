@@ -1,0 +1,38 @@
+/*Esta es una actividad para realizar de manera INDIVIDUAL. 
+
+Crear un procedimiento almacenado para actualizar la tasa de cambio de
+ un registro en la tabla currencies. Se debe validar que el valor de tasa 
+ de cambio es no nulo y es mayor que cero. Además el currency_id debe
+ ser mayor que cero. De lo contrario, escribir un
+ mensaje de advertencia, que no se hizo ningún cambio.
+
+Crear un archivo en repositorio de github con el código del procedimiento.
+
+Entregable:  Colocar el enlace al archivo de Github, asegúrese de que el enlace sea correcto.*/
+
+DELIMITER $$
+CREATE PROCEDURE update_exchange_rate(
+IN p_currency_id INT,
+IN p_exchange_rate DECIMAL(15,6)
+)
+BEGIN
+IF p_currency_id <= 0 THEN
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: currency_id debe ser mayor que 0';
+ELSEIF p_exchange_rate IS NULL OR p_exchange_rate <= 0 THEN
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: exchange_rate debe ser mayor que 0 y no nulo';
+ELSE
+UPDATE currencies
+SET exchange_rate = p_exchange_rate
+WHERE currency_id = p_currency_id;
+END IF;
+END $$
+
+DELIMITER ;
+/*Mis ejemplos no se si lo hice bien tube que investigar ejemplos*/
+CALL update_exchange_rate(1, 25.75);
+
+SELECT * FROM currencies WHERE currency_id = 1;
+
+CALL update_exchange_rate(0, 34.56);
+CALL update_exchange_rate(1, -5);  
+CALL update_exchange_rate(1, NULL);
