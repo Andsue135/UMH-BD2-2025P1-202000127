@@ -1,0 +1,49 @@
+/*aqui dejo 8 tipos de moneda no se si esta correcto basandome con el ejemplo en clases*/
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS sp_new_currency_case;
+//
+CREATE PROCEDURE sp_new_currency_case(
+IN P_currency_name VARCHAR(45),
+IN P_currency_symbol VARCHAR(45),
+IN P_exchange_rate DECIMAL(15,2),
+IN P_country VARCHAR(45),
+IN P_iso_code VARCHAR(45)
+)
+BEGIN
+DECLARE _currency_name VARCHAR(45) DEFAULT NULL;
+DECLARE _currency_symbol VARCHAR(45);
+DECLARE V_exchange_rate DECIMAL(15,2);
+DECLARE _country VARCHAR(45);
+DECLARE v_iso_code VARCHAR(45);
+SET _currency_name = P_currency_name;
+SET _currency_symbol = P_currency_symbol;
+SET V_exchange_rate = P_exchange_rate;
+SET _country = P_country;
+SET v_iso_code = P_iso_code;
+
+CASE 
+WHEN P_currency_name LIKE '%dólar%' THEN SET _currency_symbol = '$';
+WHEN P_currency_name LIKE '%peso%' THEN SET _currency_symbol = 'P';
+WHEN P_currency_name LIKE '%yen%' THEN SET _currency_symbol = '¥';
+WHEN P_currency_name LIKE '%euro%' THEN SET _currency_symbol = '€';
+WHEN P_currency_name LIKE '%rupia%' THEN SET _currency_symbol = '₹';
+WHEN P_currency_name LIKE '%rublo%' THEN SET _currency_symbol = '₽';
+WHEN P_currency_name LIKE '%franco%' THEN SET _currency_symbol = 'CHF';
+ELSE SET _currency_symbol = P_currency_symbol;
+END CASE;
+
+INSERT INTO currencies (currency_name, currency_symbol, exchange_rate, country, iso_code)
+VALUES (_currency_name, _currency_symbol, V_exchange_rate, _country, v_iso_code);
+COMMIT;
+END //
+DELIMITER ;
+
+CALL sp_new_currency_case('Dólar Canadiense', '', 1.35, 'Canadá', 'CAD');
+CALL sp_new_currency_case('Peso Colombiano', '', 3900.00, 'Colombia', 'COP');
+CALL sp_new_currency_case('Euro', '', 0.93, 'Unión Europea', 'EUR');
+CALL sp_new_currency_case('Yen Japonés', '', 150.25, 'Japón', 'JPY');
+CALL sp_new_currency_case('Sol Peruano', 'S/', 3.80, 'Perú', 'PEN');
+CALL sp_new_currency_case('Rupia India', '', 83.10, 'India', 'INR');
+CALL sp_new_currency_case('Rublo Ruso', '', 92.50, 'Rusia', 'RUB');
+CALL sp_new_currency_case('Franco Suizo', '', 0.91, 'Suiza',
