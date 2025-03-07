@@ -1,0 +1,35 @@
+/*Tarea*/
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_simulador_ahorro;
+DELIMITER //
+CREATE PROCEDURE sp_simulador_ahorro(
+IN p_monto DECIMAL(10,2),
+IN p_meses INT
+)
+BEGIN
+DECLARE v_mes INT DEFAULT 1;  -- Contador de meses
+DECLARE v_saldo_acumulado DECIMAL(10,2) DEFAULT 0;  -- Saldo acumulado
+
+CREATE TEMPORARY TABLE IF NOT EXISTS temp_simulador_ahorro (
+mes INT,
+monto DECIMAL(10,2),
+saldo_acumulado DECIMAL(10,2)
+);
+
+WHILE v_mes <= p_meses DO
+SET v_saldo_acumulado = v_saldo_acumulado + p_monto;
+        
+INSERT INTO temp_simulador_ahorro (mes, monto, saldo_acumulado)
+VALUES (v_mes, p_monto, v_saldo_acumulado);
+        
+SET v_mes = v_mes + 1;
+END WHILE;
+
+SELECT * FROM temp_simulador_ahorro;
+DROP TEMPORARY TABLE IF EXISTS temp_simulador_ahorro;
+END //
+
+/*Ejemplo*/
+CALL sp_simulador_ahorro(100.00, 6);
