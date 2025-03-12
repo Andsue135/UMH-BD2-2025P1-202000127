@@ -1,0 +1,88 @@
+/*Crear la tabla de cuentas*/
+CREATE TABLE IF NOT EXISTS cuentas (
+id_cuenta INT AUTO_INCREMENT PRIMARY KEY,
+numero_cuenta VARCHAR(20) UNIQUE NOT NULL,
+saldo DECIMAL(10,2) DEFAULT 0,
+total_creditos DECIMAL(10,2) DEFAULT 0,
+total_debitos DECIMAL(10,2) DEFAULT 0
+);
+
+/*Crear la tabla de transacciones*/
+CREATE TABLE IF NOT EXISTS transacciones (
+numTransaccion INT AUTO_INCREMENT PRIMARY KEY,
+fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+numero_cuenta VARCHAR(20) NOT NULL,
+Monto DECIMAL(10,2),
+Saldo DECIMAL(10,2),
+Promedio DECIMAL(10,2),
+Devengado DECIMAL(10,2),
+Total DECIMAL(10,2),
+FOREIGN KEY (numero_cuenta) REFERENCES cuentas(numero_cuenta)
+);
+
+INSERT INTO cuentas (numero_cuenta, saldo, total_creditos, total_debitos) 
+VALUES ('987654321', 1000.00, 600.00, 400.00);
+
+DROP PROCEDURE IF EXISTS sp_simulador_ahorro;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_simulador_ahorro(
+IN p_monto DECIMAL(10,2),
+IN p_meses INT,
+IN p_tasa_interes DECIMAL(10,2)
+)
+BEGIN 
+/*Declaración de variables */
+DECLARE v_meses INT DEFAULT 0;  
+DECLARE v_contr INT DEFAULT 1; 
+DECLARE v_monto DECIMAL(10,2) DEFAULT 0;
+DECLARE v_tasa_interes DECIMAL(10,2) DEFAULT 0;
+DECLARE v_saldo DECIMAL(10,2) DEFAULT 0;
+DECLARE v_promedio DECIMAL(10,2) DEFAULT 0; 
+DECLARE v_devengado DECIMAL(10,2) DEFAULT 0; 
+DECLARE v_total DECIMAL(10,2) DEFAULT 0; 
+DECLARE v_acumulador DECIMAL(10,2) DEFAULT 0;
+    
+SET v_meses = p_meses;
+SET v_monto = p_monto;
+SET v_tasa_interes = p_tasa_interes;  
+    
+TRUNCATE TABLE transacciones;
+    
+/*Ciclo de repetición */
+WHILE v_contr <= v_meses DO  
+SET v_saldo = v_saldo + v_monto;  
+SET v_total = v_total + v_monto;  
+SET v_acumulador = v_acumulador + v_total; 
+SET v_promedio = v_acumulador / (v_contr + 1);   
+        
+/*Calcular el interés devengado trimestralmente*/ 
+IF MOD(v_contr, 3) = 0 THEN   
+SET v_devengado = v_promedio * v_tasa_interes;
+ELSE  
+SET v_devengado = 0; 
+END IF;  
+        
+SET v_total = v_total + v_devengado; 
+        
+/*Insertar registro en transacciones*/
+INSERT INTO transacciones (numero_cuenta, Monto, Saldo, Promedio, Devengado, Total)
+VALUES ('987654321', v_monto, v_saldo, v_promedio, v_devengado, v_total);
+        
+        
+SET v_contr = v_contr + 1; 
+END WHILE;  
+END;
+//
+
+DELIMITER ;
+
+CALL sp_simulador_ahorro(200, 6, 0.07);
+
+select  * from db_demo.transacciones;
+
+SELECT * FROM transacciones;
+SELECT * FROM cuentas;
+
+
